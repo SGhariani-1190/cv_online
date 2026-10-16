@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sonia Ghariani — Communication, Brussels</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Archivo:wdth,wght@125,900&family=Instrument+Serif:ital@0;1&family=Nothing+You+Could+Do&family=Mrs+Saint+Delafield&family=Homemade+Apple&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="splash" id="splash" aria-hidden="true"></div>
+  <div class="proj-overlay" id="proj-overlay" hidden><iframe id="proj-frame" title="Fiche projet"></iframe></div>
+  <main class="page home-hero" id="a-propos" data-crumb="Accueil" data-no-footer>
+    <h1 class="about-headline" id="headline"></h1>
+
+    <!-- Diptyque : à gauche la silhouette est remplie d'écriture, à droite la silhouette découpée est posée sur l'écriture -->
+    <div class="diptych" aria-label="Portrait de Sonia Ghariani">
+      <figure class="dip dip-a">
+        <img class="dip-photo" alt="Portrait de Sonia Ghariani à Londres" />
+        <div class="dip-fill"><div class="script"></div></div>
+      </figure>
+      <figure class="dip dip-b">
+        <div class="script"></div>
+        <div class="dip-cut"><img class="dip-photo" alt="" /></div>
+      </figure>
+    </div>
+  </main>
+
+  <!-- flèche qui invite à faire défiler la page -->
+  <a class="scroll-cue" href="#suite" aria-label="Faire défiler vers la suite">
+    <span class="arr" aria-hidden="true"></span>
+  </a>
+
+  <!-- bandeau des rôles et compétences qui défile, en bas de page -->
+  <section class="kw-band" id="suite" aria-label="Rôles et compétences"><div class="kw-marquee" id="keywords"></div></section>
+
+  <!-- CV -->
+  <section class="page cv-section" id="parcours" data-crumb="CV">
+    <div class="cv-head">
+      <p class="page-title" aria-hidden="true">CV</p>
+      <a class="cv-pdf" href="CV-Sonia-Ghariani.pdf" download="CV-Sonia-Ghariani.pdf">Télécharger le CV (PDF)<span class="arr" aria-hidden="true"></span></a>
+    </div>
+    <div class="cv" id="cv"></div>
+  </section>
+
+  <!-- défilement doux (inertie) -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="data.js"></script>
+  <script src="common.js"></script>
+  <script>
+    // le prénom dans une autre police (italique éditoriale, encre rouge)
+    const hl = document.getElementById("headline");
+    hl.textContent = ABOUT.headline;
+    // mots-clés en bandes qui défilent, une sur deux dans l'autre sens
+    document.getElementById("keywords").innerHTML = SITE.keywords.map((row, i) => {
+      const items = row.map((k) => `<span class="kw${["Vulgarisation", "Mise en page"].includes(k) ? " is-red" : ""}">${k}</span><span class="kw-sep" aria-hidden="true">·</span>`).join("");
+      return `<div class="kw-row${i % 2 ? " rev" : ""}" style="--d:${46 + i * 9}s"><div class="kw-track">${items}<span aria-hidden="true" class="kw-dup">${items}</span></div></div>`;
+    }).join("");
+    document.querySelectorAll(".dip-photo").forEach((im) => (im.src = ABOUT.photo));
+    // brouillon au stylo rouge : le jargon de la com est barré, les mots justes sont gardés
+    const BARRES = ["synergie", "disruptif", "impactant", "game changer", "innovant", "storytelling", "viral", "engageant", "dynamique", "à forte valeur ajoutée"];
+    const GARDES = ["clair", "juste", "vrai", "simple", "écouter", "expliquer", "concret", "sincère"];
+    function brouillon(seed) {
+      let r = seed;
+      const rnd = () => ((r = (r * 9301 + 49297) % 233280) / 233280);
+      const f = (n) => n.toFixed(1);
+      // chaque rature est différente : trait simple, double trait, zigzag, boucles griffonnées, barre en biais
+      const rature = () => {
+        const kind = Math.floor(rnd() * 5);
+        let d = "";
+        if (kind === 0) d = `M0 ${f(9 + rnd() * 4)} C ${f(30 + rnd() * 10)} ${f(6 + rnd() * 6)}, ${f(60 + rnd() * 10)} ${f(8 + rnd() * 6)}, 100 ${f(7 + rnd() * 5)}`;
+        else if (kind === 1) { const y = 8 + rnd() * 3; d = `M0 ${f(y)} Q 50 ${f(y - 3 + rnd() * 2)} 100 ${f(y + rnd() * 2)} M3 ${f(y + 4)} Q 50 ${f(y + 2 + rnd() * 3)} 98 ${f(y + 3)}`; }
+        else if (kind === 2) { d = "M0 10"; for (let x = 6; x <= 100; x += 6 + rnd() * 4) d += ` L${f(x)} ${f(rnd() < .5 ? 3 + rnd() * 3 : 14 + rnd() * 3)}`; }
+        else if (kind === 3) { d = "M0 11"; for (let x = 0; x < 96; x += 7 + rnd() * 3) d += ` c 4 -9, 9 -9, 6 0 s -6 6, ${f(4 + rnd() * 3)} -1`; }
+        else d = `M${f(rnd() * 10)} ${f(16 + rnd() * 3)} L${f(90 + rnd() * 10)} ${f(2 + rnd() * 3)}`;
+        return `<svg class="rt" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path d="${d}"/></svg>`;
+      };
+      // quelques mots gardés sont soulignés ou entourés, comme sur une copie corrigée
+      const marque = () => {
+        const m = rnd();
+        if (m < .18) return `<svg class="mk" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path d="M8 22 C 6 6, 70 2, 92 14 C 104 26, 60 38, 26 34 C 6 31, 2 18, 20 9"/></svg>`;
+        if (m < .38) return `<svg class="ul" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5 C 30 ${f(2 + rnd() * 5)}, 70 ${f(3 + rnd() * 5)}, 98 ${f(4 + rnd() * 3)}"/></svg>`;
+        return "";
+      };
+      let bi = Math.floor(rnd() * BARRES.length), gi = Math.floor(rnd() * GARDES.length);
+      const rows = [];
+      for (let i = 0; i < 26; i++) {
+        const words = [];
+        for (let k = 0; k < 9; k++) {
+          const tilt = f(rnd() * 5 - 2.5), lift = f(rnd() * 6 - 3), size = (0.9 + rnd() * 0.3).toFixed(2);
+          const st = `--t:${tilt}deg;--y:${lift}px;--s:${size}`;
+          if (rnd() < 0.6) words.push(`<span class="w x" style="${st}">${BARRES[bi++ % BARRES.length]}${rature()}</span>`);
+          else words.push(`<span class="w k" style="${st}">${GARDES[gi++ % GARDES.length]}${marque()}</span>`);
+        }
+        rows.push(`<span class="row" style="margin-left:${-Math.round(rnd() * 140)}px">${words.join("")}</span>`);
+      }
+      return rows.join("");
+    }
+    document.querySelectorAll(".script").forEach((s, n) => (s.innerHTML = brouillon(11 + n * 17)));
+
+    // ----- Écran d'arrivée : un bloc noir, sans texte, qui descend en devenant rouge -----
+    const splash = document.getElementById("splash");
+    // à la première visite (ou via « Accueil »), pas en naviguant dans le site
+    const fromInside = !location.search.includes("arrivee") && document.referrer && new URL(document.referrer).origin === location.origin;
+    if (fromInside) splash.remove();
+    else {
+      document.documentElement.classList.add("splash-running");
+      setTimeout(() => {
+        splash.classList.add("leave");
+        document.documentElement.classList.remove("splash-running");
+        document.dispatchEvent(new Event("splash-done"));   // la page peut s'animer
+        setTimeout(() => splash.remove(), 1300);
+      }, 450);
+    }
+
+    // la flèche disparaît dès qu'on commence à descendre
+    const cue = document.querySelector(".scroll-cue");
+    addEventListener("scroll", () => cue.classList.toggle("gone", scrollY > 60), { passive: true });
+
+    // ===================== CV =====================
+
+    const rows = (list) => list.map((r) => `
+      <div class="row">
+        <div class="when">${r.period || ""}</div>
+        <div><strong>${r.title}</strong>${r.company || ""}${r.text ? `<p>${r.text}</p>` : ""}${r.items ? `<ul class="row-items">${r.items.map((t) => `<li>${t}</li>`).join("")}</ul>` : ""}</div>
+      </div>`).join("");
+
+    // index d'une fiche projet à partir de son titre
+    const projIndex = (t) => PROJECTS.findIndex((p) => p.title === t);
+    const projLink = (label, t) => { const k = projIndex(t); return k < 0 ? label : `<a href="#" class="proj-link" data-p="${k}">${label}<span class="arr" aria-hidden="true"></span></a>`; };
+    const jobs = CV.experience.map((j) => {
+      const ps = j.projects || [];
+      // un seul projet : chaque rôle renvoie à la fiche ; plusieurs (indépendante) : chaque client est un lien
+      let context = j.context || "";
+      if (ps.length > 1) ps.forEach((t) => { context = context.replace(t, projLink(t, t)); });
+      return `
+      <article class="job">
+        <header class="job-head">
+          <h3>${j.company}</h3>
+          <span class="job-period">${j.period}</span>
+        </header>
+        ${context ? `<p class="job-context">${context}</p>` : ""}
+        ${j.path ? `<p class="job-path">${j.path}</p>` : ""}
+        <div class="roles${j.roles.length > 1 ? " timeline" : ""}">
+          ${j.roles.map((r) => `
+            <div class="role">
+              <div class="role-head">
+                <h4>${ps.length === 1 ? projLink(r.title, ps[0]) : ps.length > 1 ? `<span class="proj-pick"><button type="button" class="proj-link proj-pick-btn">${r.title}<span class="arr" aria-hidden="true"></span></button><span class="proj-pick-menu" hidden>${ps.map((t) => { const k = projIndex(t); return k < 0 ? "" : `<a href="#" data-p="${k}">${t}</a>`; }).join("")}</span></span>` : r.title}</h4>
+                ${r.period ? `<span>${r.period}</span>` : ""}
+              </div>
+              <ul>${r.tasks.map((t) => `<li>${t}</li>`).join("")}</ul>
+            </div>`).join("")}
+        </div>
+      </article>`;
+    }).join("");
+
+    document.getElementById("cv").innerHTML = `
+      <section><h2>Expérience</h2><div class="body">${jobs}</div></section>
+      <section><h2>Formation</h2><div class="body edu-cols">
+        <div class="edu-group">
+          <p class="edu-label">Certifications & formation continue</p>
+          ${rows(CV.certifications)}
+        </div>
+        <div class="edu-group">
+          <p class="edu-label">Diplômes</p>
+          ${rows(CV.education)}
+        </div>
+      </div></section>
+      <section><h2>Compétences</h2><div class="body">
+        <div class="kw-marquee skills-band" aria-label="${CV.skills.join(", ")}">
+          ${[0, 1, 2].map((n) => {
+            // chaque bande reprend les compétences dans un ordre différent
+            const sk = CV.skills, L = sk.length;
+            const row = n === 0 ? sk
+              : n === 1 ? [...sk].reverse().map((_, k, a) => a[(k + 4) % L])
+              : [...sk.filter((_, k) => k % 2), ...sk.filter((_, k) => !(k % 2))];
+            const items = row.map((k) => `<span class="kw${["Vulgarisation", "Mise en page"].includes(k) ? " is-red" : ""}">${k}</span><span class="kw-sep" aria-hidden="true">·</span>`).join("");
+            return `<div class="kw-row${n % 2 ? " rev" : ""}" style="--d:${70 + n * 12}s" aria-hidden="true"><div class="kw-track">${items}<span class="kw-dup">${items}</span></div></div>`;
+          }).join("")}
+        </div>
+      </div></section>
+      <div class="cv-duo">
+      <section class="duo-langs"><h2>Langues</h2><div class="body"><div class="langs" id="langs">
+        ${CV.languages.map((l) => `
+        <div class="lang">
+          <div class="lang-head">
+            <strong>${l.label}</strong>
+            <span class="lang-badge">${l.badge || ""}</span>
+          </div>
+          <div class="lang-scale" role="img" aria-label="${l.label} : ${l.level}">
+            ${["A1", "A2", "B1", "B2", "C1", "C2"].map((lv, k) => `
+              <span class="seg${k < l.scale ? " on" : ""}${l.learning === k + 1 ? " learning" : ""}" style="--k:${k}"><i>${lv}</i></span>`).join("")}
+          </div>
+          <p class="lang-note">${l.level}</p>
+        </div>`).join("")}
+      </div></div></section>
+      <section class="duo-contact"><h2 id="contact">Contact</h2><div class="body contact-body">
+        <p class="contact-icons">
+          <a href="mailto:${SITE.email}?subject=${encodeURIComponent("Prise de contact via votre site")}" aria-label="Email"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="1.5"/><path d="M3 6.5 L12 13 L21 6.5"/></svg></a>
+          <a href="${SITE.socials.find((s) => s.label === "LinkedIn").url}" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="3"/><path d="M7.5 10.5 V17"/><circle cx="7.5" cy="7.3" r=".6" class="fill"/><path d="M11.5 17 V10.5 M11.5 13.2 C11.5 11.5 12.8 10.4 14.3 10.4 C15.9 10.4 16.8 11.4 16.8 13.3 V17"/></svg></a>
+          <a href="${SITE.socials.find((s) => s.label === "Instagram").url}" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.3"/><circle cx="17.4" cy="6.6" r=".7" class="fill"/></svg></a>
+        </p>
+        <p class="contact-made">Pensé, écrit et mis en page à Bruxelles</p>
+        <p class="signature" aria-label="Sonia Ghariani">Sonia Ghariani</p>
+      </div></section>
+      </div>`;
+
+
+    // ----- Compétences : le rouge joue d'un mot à l'autre dans le bandeau -----
+    (() => {
+      const band = document.querySelector(".skills-band");
+      if (!band) return;
+      const words = [...band.querySelectorAll(".kw")];
+      band.querySelectorAll(".kw.is-red").forEach((w) => w.classList.remove("is-red"));
+      let lit = [];
+      const play = () => {
+        lit.forEach((w) => w.classList.remove("is-lit"));
+        // trois ou quatre mots au hasard, jamais les mêmes que juste avant
+        const pool = words.filter((w) => { const r = w.getBoundingClientRect(); return !lit.includes(w) && r.left > 0 && r.right < innerWidth; });
+        lit = [];
+        const n = 3 + Math.floor(Math.random() * 2);
+        while (lit.length < n && pool.length) lit.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+        lit.forEach((w, k) => setTimeout(() => w.classList.add("is-lit"), k * 140));
+      };
+      play();
+      setInterval(play, 1800);
+    })();
+
+    // ----- Langues : les échelles se remplissent à l'arrivée -----
+    const langs = document.getElementById("langs");
+    new IntersectionObserver((entries, obs) => {
+      if (entries[0].isIntersecting) { langs.classList.add("in"); obs.disconnect(); }
+    }, { threshold: 0.3 }).observe(langs);
+
+    // ----- Galeries horizontales (effet carrousel 3D léger) -----
+    document.querySelectorAll(".work-group").forEach((group) => {
+      const strip = group.querySelector(".strip");
+      const items = [...strip.children];
+      const count = group.querySelector(".strip-count");
+      const caption = group.querySelector(".strip-caption");
+      const total = String(items.length).padStart(2, "0");
+      let active = 0;
+
+      const update = () => {
+        const mid = strip.scrollLeft + strip.clientWidth / 2;
+        let best = 0, bestDist = Infinity;
+        items.forEach((el, i) => {
+          const c = el.offsetLeft + el.offsetWidth / 2;
+          const d = (c - mid) / strip.clientWidth; // -0.5 … 0.5 environ
+          const a = Math.min(Math.abs(d) * 2, 1);
+          el.style.transform = `perspective(900px) rotateY(${-Math.sign(d) * a * 18}deg) scale(${1 - a * 0.12})`;
+          el.style.opacity = 1 - a * 0.35;
+          if (Math.abs(c - mid) < bestDist) { bestDist = Math.abs(c - mid); best = i; }
+        });
+        if (best !== active || !update.done) {
+          active = best; update.done = true;
+          count.textContent = `${String(best + 1).padStart(2, "0")} / ${total}`;
+          caption.textContent = items[best].dataset.caption;
+        }
+      };
+      const goTo = (i) => {
+        const el = items[Math.max(0, Math.min(items.length - 1, i))];
+        strip.scrollTo({ left: el.offsetLeft + el.offsetWidth / 2 - strip.clientWidth / 2, behavior: "smooth" });
+      };
+      strip.addEventListener("scroll", () => requestAnimationFrame(update), { passive: true });
+      addEventListener("resize", update);
+      items.forEach((el) => el.querySelector("img").addEventListener("load", update));
+      group.querySelector(".prev")?.addEventListener("click", () => goTo(active - 1));
+      group.querySelector(".next")?.addEventListener("click", () => goTo(active + 1));
+      update();
+
+      // glisser à la souris
+      let down = null;
+      strip.addEventListener("pointerdown", (e) => {
+        if (e.pointerType !== "mouse") return;
+        down = { x: e.clientX, left: strip.scrollLeft, moved: false };
+        strip.classList.add("dragging");
+      });
+      addEventListener("pointermove", (e) => {
+        if (!down) return;
+        const dx = e.clientX - down.x;
+        if (Math.abs(dx) > 5) down.moved = true;
+        strip.scrollLeft = down.left - dx;
+      });
+      addEventListener("pointerup", () => {
+        if (!down) return;
+        const wasDrag = down.moved;
+        down = null;
+        strip.classList.remove("dragging");
+        goTo(active);
+        if (wasDrag) strip.dataset.justDragged = "1", setTimeout(() => delete strip.dataset.justDragged, 50);
+      });
+      // un clic sur une image de côté la ramène au centre ; au centre, il l'agrandit
+      items.forEach((el, i) => el.addEventListener("click", (e) => {
+        if (strip.dataset.justDragged) { e.stopImmediatePropagation(); return; }
+        if (i !== active) { e.stopImmediatePropagation(); goTo(i); }
+      }));
+    });
+
+    // ----- Visionneuse -----
+    const shots = [...document.querySelectorAll(".shot")];
+    const lb = document.createElement("div");
+    lb.className = "lightbox";
+    lb.innerHTML = `
+      <button class="lb-close" aria-label="Fermer">Fermer ×</button>
+      <button class="lb-nav lb-prev" aria-label="Précédent">←</button>
+      <figure><img alt="" /><figcaption></figcaption></figure>
+      <button class="lb-nav lb-next" aria-label="Suivant">→</button>`;
+    document.body.appendChild(lb);
+    const lbImg = lb.querySelector("img"), lbCap = lb.querySelector("figcaption");
+    let cur = 0;
+    const show = (i) => {
+      cur = (i + shots.length) % shots.length;
+      lbImg.src = shots[cur].dataset.src;
+      lbCap.textContent = shots[cur].dataset.caption;
+      lb.classList.add("open");
+    };
+    const close = () => lb.classList.remove("open");
+    shots.forEach((s, i) => s.addEventListener("click", () => show(i)));
+    lb.querySelector(".lb-close").addEventListener("click", close);
+    lb.querySelector(".lb-prev").addEventListener("click", () => show(cur - 1));
+    lb.querySelector(".lb-next").addEventListener("click", () => show(cur + 1));
+    lb.addEventListener("click", (e) => { if (e.target === lb) close(); });
+    document.addEventListener("keydown", (e) => {
+      if (!lb.classList.contains("open")) return;
+      if (e.key === "Escape") close();
+      if (e.key === "ArrowLeft") show(cur - 1);
+      if (e.key === "ArrowRight") show(cur + 1);
+    });
+
+    // ----- Rôle couvrant plusieurs projets : petite liste au clic -----
+    document.querySelectorAll(".proj-pick-btn").forEach((b) => b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const m = b.nextElementSibling;
+      m.hidden = !m.hidden;
+    }));
+    document.addEventListener("click", () => document.querySelectorAll(".proj-pick-menu").forEach((m) => (m.hidden = true)));
+
+    // ----- Fiches projets : s'ouvrent par-dessus le CV -----
+    const overlay = document.getElementById("proj-overlay");
+    const frame = document.getElementById("proj-frame");
+    document.querySelectorAll("[data-p]").forEach((b) => b.addEventListener("click", (e) => {
+      e.preventDefault();
+      frame.src = `projet.html?embed&p=${b.dataset.p}`;
+      overlay.hidden = false;
+      document.documentElement.classList.add("proj-open");
+      frame.focus();
+    }));
+    addEventListener("message", (e) => {
+      if (e.data !== "close-project") return;
+      overlay.hidden = true;
+      frame.src = "about:blank";
+      document.documentElement.classList.remove("proj-open");
+    });
+
+
+  </script>
+</body>
+</html>

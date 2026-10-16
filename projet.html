@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sonia Ghariani — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Gaegu:wght@400;700&family=Instrument+Serif:ital@0;1&family=Caveat+Brush&family=Caveat:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>html, body { overflow: hidden; height: 100%; }</style>
+</head>
+<body>
+  <div class="splash" id="splash"><span class="splash-name" id="splash-name"></span></div>
+  <div class="stage" id="stage"><div class="track" id="track"></div></div>
+  <div class="current" id="current"></div>
+  <button class="nav-arrow prev" id="prev" aria-label="Projet précédent">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg>
+  </button>
+  <button class="nav-arrow next" id="next" aria-label="Projet suivant">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+  </button>
+
+  <!-- Fenêtre d'un projet (s'ouvre en zoomant depuis l'affiche) -->
+  <div class="pm" id="pm" aria-hidden="true">
+    <div class="pm-backdrop"></div>
+    <article class="pm-panel" role="dialog" aria-modal="true" aria-labelledby="pm-title">
+      <button class="pm-close" id="pm-close">Fermer ×</button>
+      <div class="lib-viewer" id="lib-viewer" hidden>
+        <div class="lib-box">
+          <button class="lib-close" id="lib-close">Fermer ×</button>
+          <div class="lib-frame" id="lib-frame"></div>
+          <p class="lib-cap" id="lib-cap"></p>
+        </div>
+      </div>
+      <div class="pm-content">
+        <img class="pm-logo" id="pm-logo" alt="" hidden />
+        <p class="pm-meta" id="pm-meta"></p>
+        <h2 class="pm-title" id="pm-title"></h2>
+        <p class="pm-subtitle" id="pm-subtitle"></p>
+        <div class="pm-text" id="pm-text"></div>
+        <div class="pm-facts" id="pm-facts"></div>
+        <div class="pm-feature" id="pm-feature" hidden></div>
+        <section class="pm-video" id="pm-video" hidden></section>
+        <section class="pm-library" id="pm-library" hidden></section>
+        <div id="pm-galleries"></div>
+        <nav class="pm-nav">
+          <button id="pm-prev">← Projet précédent</button>
+          <button id="pm-next">Projet suivant →</button>
+        </nav>
+      </div>
+    </article>
+  </div>
+
+  <footer class="footer">
+    <div class="date" id="date"></div>
+    <div></div>
+    <div class="clock" id="clock"></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="data.js"></script>
+  <script src="common.js"></script>
+  <script>
+    // Cette page sert uniquement à afficher les fiches projets, ouvertes depuis le CV (?embed&p=numéro).
+    // Ouverte directement, elle renvoie vers le CV.
+    const params = new URLSearchParams(location.search);
+    const EMBED = params.has("embed");
+    if (!EMBED) location.replace("index.html#parcours");
+    else document.documentElement.classList.add("embed");
+    // ----- Date & horloge -----
+    const dateEl = document.getElementById("date");
+    const clockEl = document.getElementById("clock");
+    const fmtDate = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+    const tick = () => {
+      const now = new Date();
+      const d = fmtDate.format(now);
+      dateEl.textContent = d.charAt(0).toUpperCase() + d.slice(1);
+      clockEl.textContent = now.toLocaleTimeString("fr-FR");
+    };
+    tick(); setInterval(tick, 1000);
+
+    // ----- Carrousel 3D -----
+    const track = document.getElementById("track");
+    const stage = document.getElementById("stage");
+    const current = document.getElementById("current");
+    const N = PROJECTS.length;
+    // ----- Chaque projet = une affiche différente -----
+    // Petits dessins à la main (étoile, flèche, soulignement, cœur)
+    const DOODLE = {
+      star: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4l3.5 11 11.5.4-9.2 7 3.4 11.1L20 27l-9.2 6.5 3.4-11.1-9.2-7 11.5-.4z"/></svg>`,
+      arrow: `<svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M50 6C30 8 16 22 14 46"/><path d="M6 38l8 10 9-8"/></svg>`,
+      under: `<svg viewBox="0 0 200 20" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M3 8c50-3 120-4 194-2"/><path d="M10 17c60-2 110-3 180 0"/></svg>`,
+      heart: `<svg viewBox="0 0 60 56" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M30 50C10 36 3 26 5 16 7 7 18 3 25 9c3 2 4 5 5 7 1-3 3-6 6-8 8-5 19 0 19 10 0 11-10 21-25 32z"/></svg>`,
+    };
+    const num = (i) => String(i + 1).padStart(2, "0");
+    const img = (p) => `<div class="a-img"><img src="${p.image}" alt="" draggable="false" /></div>`;
+    const split = (t) => { const w = t.split(" "); return [w[0], w.slice(1).join(" ")]; };
+
+    // 9 modèles d'affiche — un par projet (ils tournent si la liste s'allonge)
+    const DESIGNS = [
+      // 1 — typographique, serif condensé, numéro (Hemeon « STEAL WITH HONOR »)
+      (p, i) => `<span class="a-num">${num(i)}</span>
+        <h3 class="a-title fit" data-max="26">${p.title}</h3>${p.image ? img(p) : ""}
+        <p class="a-small">${p.tag}</p>`,
+      // 2 — pinceau rouge + étoile (« Second Serving »)
+      (p) => `<h3 class="a-title fit" data-max="26">${p.title}</h3>
+        ${img(p)}
+        <p class="a-caption">${p.tag}</p>`,
+      // 3 — annotations manuscrites, flèche, soulignements (champ de blé)
+      (p) => `<h3 class="a-title fit" data-max="26">${p.title}</h3>
+        <span class="a-under">${DOODLE.under}</span>
+        <p class="a-note1">${p.tag}</p><span class="a-arrow">${DOODLE.arrow}</span>
+        ${img(p)}
+        <p class="a-note2">${p.year}</p>`,
+      // 4 — grand titre éclaté haut / bas (« marketing emocional »)
+      (p) => { const [a, b] = split(p.title); return `<h3 class="a-title fit" data-max="26">${a}</h3>
+        <p class="a-small">${p.tag}</p>
+        <h3 class="a-title2 fit" data-max="26">${b || ""}</h3>
+        ${img(p)}`; },
+      // 5 — image centrée, écriture fine dessous (« Layering »)
+      (p) => `${img(p)}
+        <h3 class="a-title fit" data-max="26">${p.title}</h3>
+        <p class="a-small"><b>${p.title}</b> — ${p.tag}</p>`,
+      // 6 — grotesque gras + numéro (Hemeon « Your body is your first interface »)
+      (p, i) => `<span class="a-num">${num(i)}</span>
+        <h3 class="a-title fit" data-max="26">${p.title}</h3>
+        <p class="a-small">${p.tag}</p>
+        ${img(p)}`,
+      // 7 — italique élégant + cœur
+      (p) => `<h3 class="a-title fit" data-max="26">${p.title}</h3>
+        ${img(p)}
+        <p class="a-small">${p.tag}</p>
+        <span class="a-doodle">${DOODLE.heart}</span>`,
+      // 8 — serif capitales centré (Hemeon « DESIGN WHO YOU ARE »)
+      (p) => `<h3 class="a-title fit" data-max="26">${p.title}</h3>
+        ${img(p)}
+        <p class="a-small">${p.tag}</p>`,
+      // 9 — titre en escalier + texte machine (Hemeon « KNOW THE WHY / BEFORE THE WHAT »)
+      (p, i) => { const [a, b] = split(p.title); return `<span class="a-num">${num(i)}</span>
+        <h3 class="a-title fit" data-max="26">${a}</h3>
+        <h3 class="a-title2 fit" data-max="26">${b || ""}</h3>
+        ${img(p)}
+        <p class="a-small">${p.tag}</p>`; },
+    ];
+
+    const cards = PROJECTS.map((p, i) => {
+      const el = document.createElement("div");
+      el.setAttribute("role", "button");
+      el.tabIndex = 0;
+      el.setAttribute("aria-label", `Ouvrir le projet ${p.title}`);
+      // modèle choisi dans data.js (design: 1 à 9), sinon il tourne ; sans image → typographique
+      let design = p.design ? p.design - 1 : i % DESIGNS.length;
+      if (!p.image) design = 0;
+      else if (design === 0 && !p.design) design = 1;
+      el.className = `card affiche d${design + 1}${p.imageFull ? " img-full" : ""}${p.logo ? " has-logo" : ""}`;
+      // année soulignée en italique (même style que sur l’affiche Erbario), sauf si le modèle l’affiche déjà
+      const year = design === 2 ? "" : `<p class="a-year">${p.year}</p>`;
+      el.innerHTML = DESIGNS[design](p, i) + year + (p.logo ? `<img class="a-logo${p.logoRound ? " is-round" : p.logoPlain ? " is-plain" : ""}${p.logoWide ? " is-wide" : ""}" src="${p.logo}" alt="" draggable="false" />` : "");
+      track.appendChild(el);
+      return el;
+    });
+
+    // Ajuste la taille des titres pour qu'ils tiennent toujours dans leur zone
+    const fitTitles = () => {
+      document.querySelectorAll(".affiche .fit").forEach((t) => {
+        const w = t.closest(".affiche").offsetWidth;
+        let size = (+t.dataset.max / 100) * w;
+        t.style.fontSize = size + "px";
+        while ((t.scrollWidth > t.clientWidth + 1 || t.scrollHeight > t.clientHeight + 1) && size > 8) {
+          size -= 1;
+          t.style.fontSize = size + "px";
+        }
+      });
+    };
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(fitTitles);
+    addEventListener("resize", fitTitles);
+
+    let pos = 0, target = 0;
+    const mobile = () => innerWidth < 760;
+
+    // ----- Écran d'arrivée : le nom apparaît lettre par lettre -----
+    const splash = document.getElementById("splash");
+    const splashName = document.getElementById("splash-name");
+    const fromInside = document.referrer && new URL(document.referrer).origin === location.origin;
+    if (fromInside || EMBED) {
+      splash.remove();
+    } else {
+      document.body.classList.add("intro-running");
+      pos = -N / 2 + 0.5; // les cartes arriveront en tournant
+      const name = SITE.name;
+      const glyphs = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+      const start = performance.now();
+      const perLetter = 55, scramble = 260;
+      // certaines lettres prennent la couleur d'une affiche, les autres restent blanches
+      const chroma = (hex) => { const n = parseInt(hex.replace("#", ""), 16), v = [n >> 16, (n >> 8) & 255, n & 255]; return (Math.max(...v) - Math.min(...v)) / 255; };
+      const lum = (hex) => { const n = parseInt(hex.replace("#", ""), 16); return (0.3 * (n >> 16) + 0.59 * ((n >> 8) & 255) + 0.11 * (n & 255)) / 255; };
+      const palette = cards.map((c) => getComputedStyle(c).getPropertyValue("--bg").trim())
+        .filter((c) => /^#[0-9a-f]{6}$/i.test(c) && lum(c) > 0.3 && chroma(c) > 0.15); // lisibles sur le noir et vraiment colorées
+      const colored = [0, 3, 6, 8, 11]; // lettres colorées (les autres restent blanches)
+      let ci = 0, li = 0;
+      splashName.innerHTML = [...name].map((ch) => {
+        if (ch === " ") return `<span class="sp-space"> </span>`;
+        const col = colored.includes(li++) ? palette[ci++ % palette.length] : "";
+        return `<span class="sp-letter"${col ? ` style="color:${col}"` : ""}></span>`;
+      }).join("");
+      const tiles = [...splashName.children];
+      const step = (now) => {
+        const t = now - start;
+        for (let i = 0; i < name.length; i++) {
+          if (name[i] === " ") continue;
+          const local = t - i * perLetter, el = tiles[i];
+          if (local > scramble) { el.textContent = name[i]; el.classList.add("on"); }
+          else if (local > 0) { el.textContent = glyphs[Math.floor(Math.random() * glyphs.length)]; el.classList.add("on"); }
+          else el.textContent = name[i];
+        }
+        if (t < name.length * perLetter + scramble) requestAnimationFrame(step);
+        else setTimeout(() => {
+          splash.classList.add("leave");
+          document.body.classList.remove("intro-running");
+          target = 0;
+          setTimeout(() => splash.remove(), 1100);
+        }, 900);
+      };
+      requestAnimationFrame(step);
+    }
+
+    // ----- Système solaire : les affiches tournent en orbite autour du nom -----
+    document.body.classList.add("solar");
+    const sun = document.createElement("div");
+    sun.className = "sun";
+    sun.innerHTML = "";
+    stage.appendChild(sun);
+    // deux orbites : intérieure (3 projets) et extérieure (les autres)
+    const innerCount = Math.min(3, N);
+    const orbits = [0.56, 1].map(() => { const o = document.createElement("div"); o.className = "orbit"; stage.insertBefore(o, track); return o; });
+    // quelques étoiles discrètes
+    for (let s = 0; s < 46; s++) {
+      const st = document.createElement("i");
+      st.className = "star";
+      st.style.left = Math.random() * 100 + "%";
+      st.style.top = Math.random() * 100 + "%";
+      st.style.opacity = (0.25 + Math.random() * 0.6).toFixed(2);
+      stage.insertBefore(st, track);
+    }
+    const nodes = [[1, 0.35], [1, 2.2], [1, 3.9], [1, 5.3], [0.56, 1.3], [0.56, 4.4]].map(([f, a]) => { const q = document.createElement("i"); q.className = "node"; q.dataset.f = f; q.dataset.a = a; stage.insertBefore(q, track); return q; });
+    ["#f7b6c8", "#f9c9a8", "#cfe0c0", "#bcd6ec"].forEach((c, k) => { const b = document.createElement("i"); b.className = "blob b" + k; b.style.background = c; stage.insertBefore(b, stage.firstChild); });
+    let auto = 0, hovered = -1;
+    // chaque projet devient un point (planète) avec son nom, sa taille varie légèrement
+    cards.forEach((el, i) => {
+      el.style.setProperty("--dot", [74, 58, 64, 54, 62, 50, 68][i % 7] + "px");
+      el.classList.add("orb", "orb" + (i % 7));
+      el.insertAdjacentHTML("beforeend", `<span class="dot-label">${PROJECTS[i].title}</span>`);
+    });
+
+    function render() {
+      pos += (target - pos) * 0.08;
+      if (hovered < 0 && !document.body.classList.contains("menu-open") && !document.getElementById("pm").classList.contains("open")) auto += 0.0009;
+      const W = innerWidth, H = innerHeight;
+      const rx = mobile() ? W * 0.4 : Math.min(W * 0.4, 640);
+      const ry = mobile() ? Math.min(rx * 1.5, H * 0.3) : Math.min(rx * 0.4, H * 0.3);
+      const base = 1;
+      [0.56, 1].forEach((f, k) => {
+        orbits[k].style.width = 2 * rx * f + "px";
+        orbits[k].style.height = 2 * ry * f + "px";
+      });
+      nodes.forEach((q) => { const f = +q.dataset.f, a = +q.dataset.a; q.style.transform = `translate(${Math.cos(a) * rx * f}px, ${Math.sin(a) * ry * f}px)`; });
+      cards.forEach((el, i) => {
+        const outer = i >= innerCount;
+        const n = outer ? N - innerCount : innerCount;
+        const k = outer ? i - innerCount : i;
+        // chaque forme a sa propre distance et dérive doucement (trajectoires libres, pas d’ellipse parfaite)
+        const t = performance.now() / 1000;
+        const f = [0.5, 0.64, 0.56, 0.9, 1.06, 0.96, 1.12][i % 7] * (1 + 0.08 * Math.sin(t * 0.37 + i * 1.7));
+        const speed = outer ? 1 : 1.5;
+        const ang = (k / n) * Math.PI * 2 + (outer ? 0.45 : 0) + (pos * 0.6 + auto) * speed;
+        const x = Math.cos(ang) * rx * f;
+        const y = Math.sin(ang) * ry * f + Math.sin(t * 0.55 + i * 2.3) * (mobile() ? 10 : 22);
+        const depth = (Math.sin(ang) + 1) / 2;           // 0 = derrière le nom, 1 = devant
+        const s = base * (0.82 + 0.26 * depth) * (hovered === i ? 1.12 : 1);
+        el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${s})`;
+        el.style.zIndex = hovered === i ? 400 : Math.round(100 + depth * 200);
+        el.style.opacity = (0.7 + 0.3 * depth).toFixed(2);
+      });
+      const p = PROJECTS[hovered];
+      const html = p ? `${p.title}<small>${p.tag} — ${p.year}</small>` : `<small>Survolez un projet, cliquez pour l’ouvrir</small>`;
+      if (current.innerHTML !== html) current.innerHTML = html;
+      requestAnimationFrame(render);
+    }
+    render();
+
+    const isOpen = () => pm.classList.contains("open");
+    const busy = () => isOpen() || document.body.classList.contains("menu-open");
+    const centerIndex = () => ((Math.round(target) % N) + N) % N;
+    // aller vers la carte i par le chemin le plus court
+    const goTo = (i) => {
+      let d = i - centerIndex();
+      if (d > N / 2) d -= N;
+      if (d < -N / 2) d += N;
+      target = Math.round(target) + d;
+    };
+
+    // flèches
+    document.getElementById("prev").addEventListener("click", () => (target = Math.round(target) - 1));
+    document.getElementById("next").addEventListener("click", () => (target = Math.round(target) + 1));
+
+    // molette / trackpad
+    let snapTimer;
+    addEventListener("wheel", (e) => {
+      if (busy()) return;
+      target += (e.deltaY + e.deltaX) * 0.004;
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => (target = Math.round(target)), 180);
+    }, { passive: true });
+
+    // clavier
+    addEventListener("keydown", (e) => {
+      if (isOpen()) {
+        if (!viewer.hidden) { if (e.key === "Escape") closeViewer(); return; }
+        if (e.key === "Escape") closeProject();
+        if (e.key === "ArrowRight") openProject((current_ + 1) % N, null);
+        if (e.key === "ArrowLeft") openProject((current_ - 1 + N) % N, null);
+        return;
+      }
+      if (busy()) return;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") target = Math.round(target) + 1;
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") target = Math.round(target) - 1;
+      if (e.key === "Enter") openProject(centerIndex(), cards[centerIndex()]);
+    });
+
+    // glisser (souris + tactile)
+    let startX = null, startT = 0, moved = false;
+    stage.addEventListener("pointerdown", (e) => {
+      if (busy()) return;
+      startX = e.clientX; startT = target; moved = false;
+      stage.classList.add("dragging");
+    });
+    addEventListener("pointermove", (e) => {
+      if (startX === null) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 5) moved = true;
+      target = startT - dx / (mobile() ? 120 : 230);
+    });
+    addEventListener("pointerup", () => {
+      if (startX === null) return;
+      startX = null; stage.classList.remove("dragging");
+      target = Math.round(target);
+    });
+
+    // clic sur une planète : le projet s'ouvre directement ; survol : l'orbite ralentit et le nom s'affiche
+    cards.forEach((card, i) => {
+      card.addEventListener("click", () => { if (!moved && !busy()) openProject(i, card); });
+      card.addEventListener("mouseenter", () => (hovered = i));
+      card.addEventListener("mouseleave", () => { if (hovered === i) hovered = -1; });
+    });
+
+    // ----- Fenêtre projet avec effet zoom -----
+    const pm = document.getElementById("pm");
+    const panel = pm.querySelector(".pm-panel");
+    let current_ = 0, origin = null;
+
+    function fill(i) {
+      const p = PROJECTS[i];
+      // style « carnet » : toutes les fiches ont le même papier crème et la même typographie (voir style.css)
+      document.getElementById("pm-title").textContent = p.title;
+      document.getElementById("pm-meta").textContent = `${p.tag} · ${p.year}`;
+      // intro : une phrase ou plusieurs paragraphes (tableau dans data.js)
+      const pt = document.getElementById("pm-text");
+      pt.innerHTML = "";
+      [].concat(p.text || []).forEach((t) => { const el = document.createElement("p"); el.textContent = t; pt.appendChild(el); });
+      const sub = document.getElementById("pm-subtitle");
+      sub.textContent = p.subtitle || "";
+      sub.hidden = !p.subtitle;
+      const facts = document.getElementById("pm-facts");
+      facts.innerHTML =
+        (p.meta ? `<p class="pm-meta-line">${p.meta.map((m) => `<span><b>${m.label} :</b> ${m.value}</span>`).join(`<i aria-hidden="true">·</i>`)}</p>` : "") +
+        (p.links ? `<p class="pm-links">${p.links.map((l) => `<a href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`).join("")}</p>` : "") +
+        (p.tone ? `<p class="pm-tone">${p.tone}</p>` : "") +
+        (p.highlights ? `<div class="pm-highlights"><h3 class="pm-group-title">Temps forts</h3><ol>${p.highlights.map((x) => `<li><h4>${x.title}</h4><p>${x.text}</p></li>`).join("")}</ol></div>` : "") +
+        (p.results ? `<div class="pm-results">${p.results.map((r) => `<div class="pm-result"><span class="pm-figure">${r.figure}</span><span class="pm-result-text">${r.text}</span></div>`).join("")}</div>` : "");
+      facts.hidden = !facts.innerHTML;
+      const logo = document.getElementById("pm-logo");
+      logo.hidden = !p.logo;
+      if (p.logo) { logo.src = p.logo; logo.alt = `Logo ${p.title}`; }
+      logo.classList.toggle("is-round", !!p.logoRound);
+      logo.classList.toggle("is-plain", !!p.logoPlain);
+      logo.classList.toggle("is-wide", !!p.logoWide);
+      // Vidéos, regroupées par section (ex. « Campagne Saint-Valentin »)
+      const v = document.getElementById("pm-video");
+      const vids = p.videos || [];
+      v.hidden = !vids.length;
+      const groups = [];
+      vids.forEach((vd) => {
+        const name = vd.group || "Vidéos";
+        let gr = groups.find((x) => x.name === name);
+        if (!gr) groups.push((gr = { name, items: [] }));
+        gr.items.push(vd);
+      });
+      const vcard = (vd) => `
+        <figure class="pm-vcard${vd.wide ? " is-wide" : ""}${!vd.wide && (vd.caption || vd.type === "image") ? " has-text" : ""}">
+          <div class="sketch"><div class="pm-vmedia ${vd.vertical ? "is-embed is-insta " : ""}${vd.type === "instagram" ? "is-embed is-insta" : vd.type === "iframe" ? "is-embed" : vd.type === "facebook" ? "is-fb" : vd.wide ? "is-wide" : "is-square"}">
+            ${vd.type === "image" ? `<img src="${vd.src}" alt="${vd.label}" loading="lazy" />` : vd.type === "instagram" ? `<iframe src="https://www.instagram.com/p/${vd.src}/embed/" title="${vd.label}" loading="lazy" allowfullscreen scrolling="no"></iframe>` : vd.type === "iframe" ? `<iframe src="${vd.src}" title="${vd.label}" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>` : vd.type === "facebook"
+              ? `<iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(vd.src)}&show_text=false&width=560"
+                  title="${vd.label}" loading="lazy" allowfullscreen
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>`
+              : `<video src="${vd.src}" ${vd.poster ? `poster="${vd.poster}"` : ""} muted loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback></video>`}
+          </div></div>
+          <figcaption>
+            <p class="pm-video-label">${vd.label}</p>
+            ${vd.caption ? `<p class="pm-post-text">${vd.caption.replace(/\n/g, "<br>")}</p>` : ""}
+            ${vd.link ? `<a class="pm-video-link" href="${vd.link.url}" target="_blank" rel="noopener">${vd.link.label}</a>` : ""}
+          </figcaption>
+        </figure>`;
+      v.innerHTML = groups.map((gr) => `
+        <div class="pm-group">
+          ${(p.groupIntros || {})[gr.name]
+            ? `<div class="pm-group-title is-line" aria-hidden="true"></div><div class="pm-chapeau"><h3>${p.groupIntros[gr.name].title}</h3><p>${p.groupIntros[gr.name].text}</p></div>`
+            : (p.hiddenGroupTitles || []).includes(gr.name) ? `<div class="pm-group-title is-line" aria-hidden="true"></div>` : `<h3 class="pm-group-title">${gr.name}</h3>`}
+          <div class="pm-vgrid">${gr.items.map(vcard).join("")}</div>
+        </div>`).join("");
+      watchVideos();
+
+      // Quelques réalisations : classées par compétence, puis par famille (visuels, presse, réseaux sociaux)
+      const lib = document.getElementById("pm-library");
+      const items = p.library || [];
+      lib.hidden = !items.length;
+      lib.innerHTML = "";
+      if (items.length) {
+        const famille = (x) => /^Presse/.test(x.format || "") ? "Presse" : (x.image || x.images) ? "Photos & visuels" : "Réseaux sociaux";
+        const FAMILLES = ["Photos & visuels", "Presse", "Réseaux sociaux"];
+        const themes = [...new Set(items.map((x) => x.theme))];
+        const slug = (t) => "lib-" + t.toLowerCase().normalize("NFD").replace(/[^a-z]+/g, "-");
+        const ytId = (u) => (u.match(/embed\/([\w-]+)/) || [])[1];
+        const card = (x) => {
+          const k = items.indexOf(x);
+          const cap = `<figcaption><span class="lib-fmt">${x.format || ""}</span><span class="lib-ttl">${x.title}</span></figcaption>`;
+          if (x.image || x.images) return `<figure class="lib-item is-img"><button class="lib-open" data-k="${k}"><img src="${x.cover || x.image || x.images[0]}" alt="${x.title}" loading="lazy" /></button>${cap}</figure>`;
+          if (x.src) return `<figure class="lib-item is-insta"><div class="lib-embed"><iframe data-src="https://www.instagram.com/p/${x.src}/embed/" title="${x.title}" scrolling="no" allowfullscreen></iframe></div>${cap}</figure>`;
+          if (x.embed && /youtube/.test(x.embed)) { const id = ytId(x.embed); return `<figure class="lib-item is-yt"><div class="lib-embed"><iframe data-src="${x.embed}?autoplay=1&mute=1&loop=1&playlist=${id}&playsinline=1&rel=0&modestbranding=1" title="${x.title}" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>${cap}</figure>`; }
+          if (x.embed) return `<figure class="lib-item is-li"><div class="lib-embed"><iframe data-src="${x.embed}" title="${x.title}" allowfullscreen></iframe></div>${cap}</figure>`;
+          if (x.url) return `<figure class="lib-item is-img"><a class="lib-open" href="${x.url}" target="_blank" rel="noopener"><img src="${x.cover}" alt="${x.title}" loading="lazy" /><span class="lib-ext">Voir la vidéo ↗</span></a>${cap}</figure>`;
+          return "";
+        };
+        lib.innerHTML = `
+          <h3 class="pm-group-title">Quelques réalisations</h3>
+          <nav class="lib-jump" aria-label="Compétences">${themes.map((t) => `<a href="#${slug(t)}">${t}<sup>${items.filter((x) => x.theme === t).length}</sup></a>`).join("")}</nav>
+          ${themes.map((t) => `
+            <section class="lib-sec" id="${slug(t)}">
+              <h4 class="lib-sec-title">${t}</h4>
+              ${FAMILLES.map((f) => {
+                const list = items.filter((x) => x.theme === t && famille(x) === f);
+                return list.length ? `<div class="lib-fam"><div class="lib-fam-head"><p class="lib-fam-title">${f} <span>${list.length}</span></p>${list.length > 2 ? `<div class="lib-arrows"><button class="lib-arr" data-dir="-1" aria-label="Précédent">←</button><button class="lib-arr" data-dir="1" aria-label="Suivant">→</button></div>` : ""}</div><div class="lib-row ${f === "Réseaux sociaux" ? "is-social" : "is-visual"}">${list.map(card).join("")}</div></div>` : "";
+              }).join("")}
+            </section>`).join("")}`;
+        lib.querySelectorAll("button.lib-open").forEach((c) => c.addEventListener("click", () => openViewer(items[+c.dataset.k])));
+        // lignes qui glissent : flèches, et les éléments apparaissent en douceur quand on arrive dessus
+        lib.querySelectorAll(".lib-fam").forEach((fam) => {
+          const row = fam.querySelector(".lib-row");
+          fam.querySelectorAll(".lib-arr").forEach((b) => b.addEventListener("click", () => row.scrollBy({ left: +b.dataset.dir * row.clientWidth * 0.8, behavior: "smooth" })));
+        });
+        const io = new IntersectionObserver((entries) => entries.forEach((en) => {
+          if (!en.isIntersecting) return;
+          en.target.classList.add("in");
+          // les publications intégrées ne se chargent qu'au moment où elles apparaissent
+          en.target.querySelectorAll("iframe[data-src]").forEach((f) => { f.src = f.dataset.src; f.removeAttribute("data-src"); });
+          io.unobserve(en.target);
+        }), { root: panel.querySelector(".pm-content"), rootMargin: "0px 200px 120px 200px" });
+        lib.querySelectorAll(".lib-item").forEach((it, n) => { it.style.setProperty("--n", n % 6); io.observe(it); });
+        lib.querySelectorAll(".lib-jump a").forEach((a) => a.addEventListener("click", (e) => {
+          e.preventDefault();
+          const sec = lib.querySelector(a.getAttribute("href"));
+          if (window.pmLenis) pmLenis.scrollTo(sec, { offset: -20, duration: 1.2 }); else panel.querySelector(".pm-content").scrollTo({ top: sec.offsetTop - 20, behavior: "smooth" });
+        }));
+      }
+      closeViewer();
+
+      // Images : chemin seul ou { src, caption }
+      const norm = (list) => (list || []).map((x) => (typeof x === "string" ? { src: x } : x));
+      const imgs = norm(p.images), nf = p.featured || 0;
+      const imgTag = (im) => `<img src="${im.src}" alt="${im.caption || p.title}" loading="lazy" />`;
+      // visuels mis en avant : juste après le texte d’introduction, avant les vidéos
+      const feat = document.getElementById("pm-feature");
+      feat.innerHTML = imgs.slice(0, nf).map((im) => `<span class="sketch">${imgTag(im)}</span>`).join("");
+      feat.hidden = !nf;
+
+      // Galeries : une section par catégorie (p.galleries), sinon « Visuels & publications »
+      const sets = p.galleries
+        ? p.galleries.map((s) => ({ title: s.title, items: norm(s.images), embeds: s.embeds || [] }))
+        : [{ title: "Visuels & publications", items: imgs.slice(nf) }];
+      const wrap = document.getElementById("pm-galleries");
+      wrap.innerHTML = sets.filter((s) => s.items.length).map((s) => `
+        <section class="pm-gal-set">
+          <h3 class="pm-group-title">${s.title}</h3>
+          <div class="pm-gallery">
+            <div class="gal-stage">
+              <button class="gal-nav gal-prev" aria-label="Image précédente">←</button>
+              <div class="gal-view"><img class="gal-main" src="${s.items[0].src}" alt="" /></div>
+              <button class="gal-nav gal-next" aria-label="Image suivante">→</button>
+            </div>
+            <p class="gal-caption"></p>
+            ${s.items.length > 1 ? `<div class="gal-thumbs">${s.items.map((im, k) => `<button class="gal-thumb" data-k="${k}"><img src="${im.src}" alt="" loading="lazy" /></button>`).join("")}</div>` : ""}
+          </div>
+          ${(s.embeds || []).length ? `<div class="pm-vgrid pm-gal-embeds">${s.embeds.map((e) => `<figure class="pm-vcard"><div class="pm-vmedia is-embed is-insta"><iframe src="${e.embed || `https://www.instagram.com/p/${e.src}/embed/`}" title="${e.label}" allow="autoplay; encrypted-media; picture-in-picture" loading="lazy" allowfullscreen scrolling="no"></iframe></div><figcaption><p class="pm-video-label">${e.label}</p></figcaption></figure>`).join("")}</div>` : ""}
+        </section>`).join("");
+      wrap.querySelectorAll(".pm-gallery").forEach((g, n) => {
+        const rest = sets.filter((s) => s.items.length)[n].items;
+        const main = g.querySelector(".gal-main"), caption = g.querySelector(".gal-caption");
+        const thumbs = [...g.querySelectorAll(".gal-thumb")];
+        g.classList.toggle("is-single", rest.length < 2);
+        let k = 0;
+        const show = (m, instant) => {
+          k = (m + rest.length) % rest.length;
+          const swap = () => { main.src = rest[k].src; main.alt = rest[k].caption || p.title; main.classList.remove("is-fading"); };
+          if (instant) swap(); else { main.classList.add("is-fading"); setTimeout(swap, 160); }
+          caption.textContent = rest[k].caption || "";
+          caption.hidden = !rest[k].caption;
+          thumbs.forEach((t, j) => t.classList.toggle("on", j === k));
+          if (!instant && thumbs[k]) thumbs[k].scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+        };
+        g.querySelector(".gal-prev").addEventListener("click", () => show(k - 1));
+        g.querySelector(".gal-next").addEventListener("click", () => show(k + 1));
+        thumbs.forEach((t, j) => t.addEventListener("click", () => show(j)));
+        show(0, true);
+      });
+      current_ = i;
+    }
+
+    function openProject(i, fromCard) {
+      const wasOpen = isOpen();
+      fill(i);
+      if (wasOpen) {            // navigation entre projets dans la fenêtre
+        panel.querySelector(".pm-content").scrollTop = 0;
+        goTo(i);
+        return;
+      }
+      origin = fromCard;
+      pm.classList.add("open");
+      pm.setAttribute("aria-hidden", "false");
+      // FLIP : la fenêtre part de la taille / position de l’affiche (dans le CV : léger zoom depuis le centre)
+      const end = panel.getBoundingClientRect();
+      const start = EMBED ? { left: end.left + end.width * 0.04, top: end.top + end.height * 0.04, width: end.width * 0.92, height: end.height * 0.92 } : (fromCard || cards[i]).getBoundingClientRect();
+      panel.style.transition = "none";
+      panel.style.transformOrigin = "0 0";
+      panel.style.transform = `translate(${start.left - end.left}px, ${start.top - end.top}px) scale(${start.width / end.width}, ${start.height / end.height})`;
+      panel.getBoundingClientRect();
+      requestAnimationFrame(() => {
+        panel.style.transition = "";
+        panel.style.transform = "none";
+      });
+      document.getElementById("pm-close").focus({ preventScroll: true });
+    }
+
+    // Lecture automatique en boucle des vidéos visibles dans la fenêtre (sans le son)
+    let videoObserver = null;
+    function watchVideos() {
+      if (videoObserver) videoObserver.disconnect();
+      videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          const vd = e.target;
+          // si le navigateur refuse la lecture automatique, on affiche les commandes pour lancer la vidéo d’un clic
+          if (e.isIntersecting && isOpen()) vd.play().catch(() => { vd.controls = true; vd.classList.add("needs-click"); });
+          else vd.pause();
+        });
+      }, { root: panel.querySelector(".pm-content"), threshold: 0.35 });
+      pm.querySelectorAll(".pm-video video").forEach((vd) => {
+        videoObserver.observe(vd);
+      });
+    }
+
+    // Visionneuse de la vidéothèque
+    const viewer = document.getElementById("lib-viewer");
+    function openViewer(x) {
+      const pics = x.images || (x.image ? [x.image] : []);
+      document.getElementById("lib-frame").classList.toggle("is-image", pics.length > 0);
+      document.getElementById("lib-frame").innerHTML = pics.length ? pics.map((s) => `<img src="${s}" alt="${x.title}" />`).join("") : `<iframe src="${x.embed || `https://www.instagram.com/p/${x.src}/embed/`}" title="${x.title}" allowfullscreen></iframe>`;
+      document.getElementById("lib-cap").textContent = x.title;
+      viewer.hidden = false;
+    }
+    function closeViewer() {
+      viewer.hidden = true;
+      document.getElementById("lib-frame").innerHTML = "";
+    }
+    document.getElementById("lib-close").addEventListener("click", closeViewer);
+    viewer.addEventListener("click", (e) => { if (e.target === viewer) closeViewer(); });
+
+    function closeProject() {
+      closeViewer();
+      if (!isOpen()) return;
+      pm.querySelectorAll("video").forEach((vd) => vd.pause());
+      // arrête les lecteurs intégrés (ex. reportage Bruzz)
+      pm.querySelectorAll(".is-embed iframe").forEach((f) => { f.src = f.src; });
+      const card = cards[current_];
+      const end = panel.getBoundingClientRect();
+      const start = EMBED ? { left: end.left + end.width * 0.04, top: end.top + end.height * 0.04, width: end.width * 0.92, height: end.height * 0.92 } : card.getBoundingClientRect();
+      pm.classList.add("closing");
+      panel.style.transform = `translate(${start.left - end.left}px, ${start.top - end.top}px) scale(${start.width / end.width}, ${start.height / end.height})`;
+      setTimeout(() => {
+        pm.classList.remove("open", "closing");
+        pm.setAttribute("aria-hidden", "true");
+        panel.style.transition = "none";
+        panel.style.transform = "none";
+        requestAnimationFrame(() => (panel.style.transition = ""));
+        if (EMBED) parent.postMessage("close-project", "*");
+        else card.focus({ preventScroll: true });
+      }, 520);
+    }
+
+    document.getElementById("pm-close").addEventListener("click", closeProject);
+    pm.querySelector(".pm-backdrop").addEventListener("click", closeProject);
+    document.getElementById("pm-prev").addEventListener("click", () => openProject((current_ - 1 + N) % N, null));
+    document.getElementById("pm-next").addEventListener("click", () => openProject((current_ + 1) % N, null));
+
+    // défilement doux à l'intérieur de la fiche (même inertie que sur la page)
+    if (window.Lenis && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const box = panel.querySelector(".pm-content");
+      const pmLenis = new Lenis({ wrapper: box, content: box, lerp: 0.085, wheelMultiplier: 0.9, smoothWheel: true });
+      const tick = (t) => { pmLenis.raf(t); requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+      // remonter en haut quand on change de projet
+      document.getElementById("pm-prev").addEventListener("click", () => pmLenis.scrollTo(0, { immediate: true }));
+      document.getElementById("pm-next").addEventListener("click", () => pmLenis.scrollTo(0, { immediate: true }));
+      window.pmLenis = pmLenis;
+    }
+
+    // ouverture directe d’une fiche projet depuis le CV
+    if (EMBED && params.has("p")) {
+      const n = Math.max(0, Math.min(N - 1, +params.get("p") || 0));
+      // on attend les polices, mais jamais plus de 0,6 s (si le réseau est lent, la fiche s’ouvre quand même)
+      Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), new Promise((r) => setTimeout(r, 600))]).then(() => requestAnimationFrame(() => openProject(n, null)));
+    }
+  </script>
+</body>
+</html>
