@@ -207,10 +207,8 @@
       </div>`;
 
 
-    // ----- Compétences : le rouge joue d'un mot à l'autre dans le bandeau -----
-    (() => {
-      const band = document.querySelector(".skills-band");
-      if (!band) return;
+    // ----- Bandeaux (accueil et compétences) : le rouge joue d'un mot à l'autre -----
+    document.querySelectorAll("#keywords, .skills-band").forEach((band) => {
       const words = [...band.querySelectorAll(".kw")];
       band.querySelectorAll(".kw.is-red").forEach((w) => w.classList.remove("is-red"));
       let lit = [];
@@ -225,7 +223,7 @@
       };
       play();
       setInterval(play, 1800);
-    })();
+    });
 
     // ----- Langues : les échelles se remplissent à l'arrivée -----
     const langs = document.getElementById("langs");

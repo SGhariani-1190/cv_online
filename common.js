@@ -253,3 +253,31 @@ document.addEventListener("DOMContentLoaded", () => {
     history.replaceState(null, "", url.hash);
   });
 })();
+
+// ----- CV : les tirets apparaissent un à un en descendant, et le fil rouge de chaque expérience suit la lecture -----
+document.addEventListener("DOMContentLoaded", () => {
+  const jobs = [...document.querySelectorAll(".job")];
+  if (!jobs.length) return;
+  const items = document.querySelectorAll(".job .role li");
+  const io = new IntersectionObserver((entries) => {
+    let n = 0;
+    entries.forEach((en) => {
+      if (!en.isIntersecting) return;
+      setTimeout(() => en.target.classList.add("seen"), n++ * 160);
+      io.unobserve(en.target);
+    });
+  }, { rootMargin: "0px 0px -16% 0px", threshold: 1 });
+  items.forEach((li) => io.observe(li));
+  // progression : 0 quand le haut de l'expérience arrive au milieu de l'écran, 1 quand son bas y passe
+  const update = () => {
+    const mid = innerHeight * 0.6;
+    jobs.forEach((j) => {
+      const r = j.getBoundingClientRect();
+      const p = Math.min(1, Math.max(0, (mid - r.top) / Math.max(1, r.height - 40)));
+      j.style.setProperty("--p", p.toFixed(3));
+    });
+  };
+  addEventListener("scroll", () => requestAnimationFrame(update), { passive: true });
+  addEventListener("resize", update);
+  update();
+});

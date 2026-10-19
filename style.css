@@ -2197,3 +2197,37 @@ html.cursor-hover .cursor-dot { width: 46px; height: 46px; margin: -23px 0 0 -23
 }
 /* éviter tout débordement horizontal sur mobile */
 html, body { max-width: 100%; overflow-x: clip; }
+/* bandeau d'accueil : même jeu de rouge que les compétences */
+#keywords .kw { transition: color .6s ease; }
+#keywords .kw.is-lit, #keywords .kw:hover { color: #cc3333; }
+
+/* =====================================================================
+   CV : les tirets se découvrent au fil du défilement (plus besoin de survoler)
+   + un fil rouge à gauche de chaque expérience se remplit pendant la lecture
+   ===================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  .job .role ul, .job:hover .role ul, .job:focus-within .role ul { max-height: none; margin-top: 10px; opacity: 1; overflow: visible; }
+  .job .role li, .job:hover .role li { transition-delay: 0s; }
+  .roles, .job:hover .roles { gap: 26px; }
+}
+.job .role li { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .7s cubic-bezier(.2,.8,.2,1); }
+.job .role li.seen { opacity: 1; transform: none; }
+/* fil de lecture */
+.job { position: relative; padding-left: 22px; }
+.job::before, .job::after { content: ""; position: absolute; left: 0; top: 6px; width: 2px; border-radius: 2px; }
+.job::before { bottom: 44px; background: var(--line); }
+.job::after { height: calc((100% - 50px) * var(--p, 0)); background: #cc3333; transition: height .15s linear; }
+@media (max-width: 760px) { .job { padding-left: 16px; } }
+@media (prefers-reduced-motion: reduce) { .job .role li { opacity: 1; transform: none; } }
+/* un seul fil vertical : on retire la ligne grise de la frise des rôles (les pastilles restent) */
+.roles.timeline { border-left-color: transparent; }
+
+/* tirets dessinés au fil du défilement : le trait se trace en rouge, puis le texte apparaît */
+.job .role li::before {
+  content: ""; top: .72em; width: 11px; height: 1.5px; background: #cc3333;
+  transform: scaleX(0); transform-origin: left center; transition: transform .5s cubic-bezier(.2,.8,.2,1);
+}
+.job .role li { opacity: .0; transform: translateY(10px); transition: opacity .6s ease .18s, transform .7s cubic-bezier(.2,.8,.2,1) .18s; }
+.job .role li.seen { opacity: 1; transform: none; }
+.job .role li.seen::before { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) { .job .role li::before { transform: none; } }
