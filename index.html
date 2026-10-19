@@ -49,9 +49,10 @@
   <script src="data.js"></script>
   <script src="common.js"></script>
   <script>
-    // le prénom dans une autre police (italique éditoriale, encre rouge)
+    // intro : la phrase clé soulignée d'un trait de stylo rouge
     const hl = document.getElementById("headline");
     hl.textContent = ABOUT.headline;
+    hl.innerHTML = hl.innerHTML.replace("rendre simple ce qui est compliqué", '<span class="hl-key">rendre simple ce qui est compliqué</span>');
     // mots-clés en bandes qui défilent, une sur deux dans l'autre sens
     document.getElementById("keywords").innerHTML = SITE.keywords.map((row, i) => {
       const items = row.map((k) => `<span class="kw${["Vulgarisation", "Mise en page"].includes(k) ? " is-red" : ""}">${k}</span><span class="kw-sep" aria-hidden="true">·</span>`).join("");
