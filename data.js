@@ -16,7 +16,7 @@ const SITE = {
   ],
   intro:
     "Sonia Ghariani est responsable communication basée à Bruxelles. Elle est spécialisée en communication stratégique & institutionnelle, relations médias et stratégie digitale.",
-  email: "ghariani.so@gmail.com",
+  email: "contact@soniaghariani.com",
   location: "Bruxelles, Belgique",
   socials: [
     { label: "LinkedIn", url: "https://www.linkedin.com/in/sonia-ghariani/" },
