@@ -2258,3 +2258,8 @@ html, body { max-width: 100%; overflow-x: clip; }
 }
 @keyframes hl-draw { to { background-size: 100% .32em; } }
 @media (prefers-reduced-motion: reduce) { .hl-key { animation: none; background-size: 100% .32em; } }
+
+/* signature tout en bas de la page, centrée sur toute la largeur */
+.page-sign { text-align: center; padding: clamp(30px, 4vw, 56px) var(--gutter) clamp(28px, 3vw, 44px); }
+.page-sign .contact-made { margin-top: 0; }
+.cv-section { padding-bottom: 0; }
