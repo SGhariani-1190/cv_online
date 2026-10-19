@@ -21,6 +21,7 @@ const SITE = {
   socials: [
     { label: "LinkedIn", url: "https://www.linkedin.com/in/sonia-ghariani/" },
     { label: "Instagram", url: "https://www.instagram.com/soniaghariani/" },
+    { label: "SoundCloud", url: "https://soundcloud.com/sonia-ghariani-slime" },
   ],
 };
 
