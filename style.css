@@ -2231,3 +2231,8 @@ html, body { max-width: 100%; overflow-x: clip; }
 .job .role li.seen { opacity: 1; transform: none; }
 .job .role li.seen::before { transform: scaleX(1); }
 @media (prefers-reduced-motion: reduce) { .job .role li::before { transform: none; } }
+
+/* bas de page : phrase et signature discrètes, toutes deux manuscrites et en rouge */
+.contact-made { font: 400 13px/1.6 "Homemade Apple", cursive; letter-spacing: .01em; text-transform: none; color: #cc3333; margin-top: 34px; transform: rotate(-1.5deg); }
+.signature { margin-top: 4px; font: 400 17px/1.4 "Homemade Apple", cursive; letter-spacing: .02em; color: #cc3333; transform: rotate(-3deg); }
+@media (max-width: 760px) { .contact-made { font-size: 12px; } .signature { font-size: 16px; } }
