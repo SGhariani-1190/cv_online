@@ -2236,3 +2236,16 @@ html, body { max-width: 100%; overflow-x: clip; }
 .contact-made { font: 400 13px/1.6 "Homemade Apple", cursive; letter-spacing: .01em; text-transform: none; color: #cc3333; margin-top: 34px; transform: rotate(-1.5deg); }
 .signature { margin-top: 4px; font: 400 17px/1.4 "Homemade Apple", cursive; letter-spacing: .02em; color: #cc3333; transform: rotate(-3deg); }
 @media (max-width: 760px) { .contact-made { font-size: 12px; } .signature { font-size: 16px; } }
+
+/* accueil (ordinateur) : le diptyque remplit l'espace libre sous la phrase (taille calculée dans index.html),
+   en gardant toujours les proportions de la photo */
+@media (min-width: 761px) {
+  .page.home-hero { min-height: 100svh; row-gap: 0; padding-bottom: 28px; box-sizing: border-box; }
+  .page.home-hero h1.about-headline { margin-bottom: clamp(22px, 2.6vw, 44px); }
+  .home-hero .diptych { align-self: start; justify-self: end; max-width: none; }
+}
+/* tablette en portrait : pas d'écran plein forcé, le bandeau suit directement la photo */
+@media (min-width: 761px) and (orientation: portrait) {
+  .page.home-hero { min-height: 0; }
+  .scroll-cue { display: none; }
+}
