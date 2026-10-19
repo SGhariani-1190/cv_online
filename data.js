@@ -310,7 +310,7 @@ images: [
 // Page « À propos »
 const ABOUT = {
   headline:
-    "Bonjour, je suis Sonia. Née à Paris, adoptée par Bruxelles depuis 12 ans, je fais de la communication mon terrain de jeu : rendre simple ce qui est compliqué, rassembler une communauté et faire briller celles et ceux qui ont quelque chose à dire. Une plume pour rendre les choses claires, un œil pour les mettre en page.",
+    "Bonjour, je suis Sonia. Parisienne de naissance, Bruxelloise de cœur. Mon métier : rendre simple ce qui est compliqué. Je fais briller celles et ceux qui ont quelque chose à dire, avec une plume pour clarifier et un œil pour mettre en forme.",
   paragraphs: [
     "Depuis toujours, je suis fascinée par la façon dont les mots et les images façonnent notre regard. Formée à la communication et à la publicité à Paris, j'ai fait de cette curiosité un métier : trouver la juste façon de dire les choses, pour qu'elles soient comprises, retenues et partagées.",
     "Mon parcours m'a menée des agences aux marques, puis au cœur de l'action publique. J'ai accompagné de jeunes créateurs, des restaurants et des maisons comme Erbario Toscano, participé au lancement de TheFork en Belgique et porté la ligne éditoriale du site de SNCB International.",
