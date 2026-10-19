@@ -310,7 +310,7 @@ images: [
 // Page « À propos »
 const ABOUT = {
   headline:
-    "Bonjour, je suis Sonia. Parisienne de naissance, Bruxelloise de cœur. Mon métier : sublimer vos messages et clarifier l’essentiel. Je transforme des sujets complexes en contenus fluides et impactants avec une plume aiguisée pour clarifier et un œil avisé pour mettre en forme.",
+    "Bonjour, je suis Sonia. Parisienne de naissance, Bruxelloise de cœur. Mon métier : sublimer vos messages et clarifier l’essentiel. Je rends le complexe captivant, par la plume et par l’image.",
   paragraphs: [
     "Depuis toujours, je suis fascinée par la façon dont les mots et les images façonnent notre regard. Formée à la communication et à la publicité à Paris, j'ai fait de cette curiosité un métier : trouver la juste façon de dire les choses, pour qu'elles soient comprises, retenues et partagées.",
     "Mon parcours m'a menée des agences aux marques, puis au cœur de l'action publique. J'ai accompagné de jeunes créateurs, des restaurants et des maisons comme Erbario Toscano, participé au lancement de TheFork en Belgique et porté la ligne éditoriale du site de SNCB International.",
