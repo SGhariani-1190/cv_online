@@ -3,10 +3,15 @@
   const header = document.createElement("header");
   header.className = "header";
   // nom de la page en cours à côté du nom, pour toujours savoir où l'on est
-  const pageName = "Accueil";
+  const pageName = T("Accueil", "Home");
+  // FR / EN : on reste sur la section où l'on se trouve
+  const langLink = (l) => `<a href="index.html?lang=${l}${location.hash}" lang="${l}" hreflang="${l}"${l === LANG ? ' class="is-on" aria-current="true"' : ""}>${l.toUpperCase()}</a>`;
   header.innerHTML = `
     <a href="index.html" class="brand">${SITE.name}${pageName ? `<span class="crumb"><i>/</i>${pageName}</span>` : ""}</a>
-    <button class="menu-btn" aria-label="Menu" aria-expanded="false"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span></button>`;
+    <div class="header-right">
+      <span class="lang-switch" aria-label="${T("Langue", "Language")}">${langLink("fr")}<i aria-hidden="true">/</i>${langLink("en")}</span>
+      <button class="menu-btn" aria-label="Menu" aria-expanded="false"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span></button>
+    </div>`;
 
   const overlay = document.createElement("div");
   overlay.className = "menu-overlay";
@@ -15,7 +20,7 @@
   menu.className = "menu";
   menu.innerHTML = `
     <ul class="menu-links">
-      <li><a href="index.html?arrivee"><span>Accueil</span></a></li>
+      <li><a href="index.html?arrivee"><span>${T("Accueil", "Home")}</span></a></li>
       <li><a href="index.html#parcours"><span>CV</span></a></li>
       <li><a href="index.html#contact"><span>Contact</span></a></li>
     </ul>
@@ -24,7 +29,7 @@
       <a class="mail" href="mailto:${SITE.email}">${SITE.email}</a>
     </div>
     <div>
-      <div class="menu-label">Réseaux</div>
+      <div class="menu-label">${T("Réseaux", "Social")}</div>
       <div class="menu-socials">
         ${SITE.socials.map((s) => `<a href="${s.url}" target="_blank" rel="noopener">${s.label}</a>`).join("")}
       </div>
@@ -55,8 +60,8 @@
     foot.className = "site-footer";
     foot.innerHTML = `
       <div>
-        <p class="sf-label">Travaillons ensemble</p>
-        <a href="index.html#contact">Me contacter</a>
+        <p class="sf-label">${T("Travaillons ensemble", "Let’s work together")}</p>
+        <a href="index.html#contact">${T("Me contacter", "Get in touch")}</a>
       </div>
       <div>
         <p class="sf-label">Email</p>
@@ -64,19 +69,19 @@
       </div>
       <div>
         <p class="sf-label">Menu</p>
-        <a href="index.html?arrivee">Accueil</a><a href="index.html#parcours">CV</a><a href="index.html#contact">Contact</a>
+        <a href="index.html?arrivee">${T("Accueil", "Home")}</a><a href="index.html#parcours">CV</a><a href="index.html#contact">Contact</a>
       </div>
       <div>
-        <p class="sf-label">Réseaux</p>
+        <p class="sf-label">${T("Réseaux", "Social")}</p>
         ${SITE.socials.map((s) => `<a href="${s.url}" target="_blank" rel="noopener">${s.label}</a>`).join("")}
       </div>
       <div class="sf-time"><span class="sf-date"></span><span class="sf-clock"></span></div>`;
     main.after(foot);
-    const fmt = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+    const fmt = new Intl.DateTimeFormat(T("fr-FR", "en-GB"), { weekday: "long", day: "numeric", month: "long" });
     const tick = () => {
       const now = new Date(), d = fmt.format(now);
       foot.querySelector(".sf-date").textContent = d.charAt(0).toUpperCase() + d.slice(1);
-      foot.querySelector(".sf-clock").textContent = now.toLocaleTimeString("fr-FR");
+      foot.querySelector(".sf-clock").textContent = now.toLocaleTimeString(T("fr-FR", "en-GB"));
     };
     tick(); setInterval(tick, 1000);
   }

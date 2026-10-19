@@ -62,6 +62,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
   <script src="data.js"></script>
+  <script src="data.en.js"></script>
   <script src="common.js"></script>
   <script>
     // Cette page sert uniquement à afficher les fiches projets, ouvertes depuis le CV (?embed&p=numéro).
@@ -70,15 +71,24 @@
     const EMBED = params.has("embed");
     if (!EMBED) location.replace("index.html#parcours");
     else document.documentElement.classList.add("embed");
+    // textes fixes de la fiche dans la bonne langue
+    if (LANG === "en") {
+      document.getElementById("pm-close").textContent = "Close ×";
+      document.getElementById("lib-close").textContent = "Close ×";
+      document.getElementById("pm-prev").textContent = "← Previous project";
+      document.getElementById("pm-next").textContent = "Next project →";
+      document.getElementById("prev").setAttribute("aria-label", "Previous project");
+      document.getElementById("next").setAttribute("aria-label", "Next project");
+    }
     // ----- Date & horloge -----
     const dateEl = document.getElementById("date");
     const clockEl = document.getElementById("clock");
-    const fmtDate = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+    const fmtDate = new Intl.DateTimeFormat(T("fr-FR", "en-GB"), { weekday: "long", day: "numeric", month: "long" });
     const tick = () => {
       const now = new Date();
       const d = fmtDate.format(now);
       dateEl.textContent = d.charAt(0).toUpperCase() + d.slice(1);
-      clockEl.textContent = now.toLocaleTimeString("fr-FR");
+      clockEl.textContent = now.toLocaleTimeString(T("fr-FR", "en-GB"));
     };
     tick(); setInterval(tick, 1000);
 
@@ -150,7 +160,7 @@
       const el = document.createElement("div");
       el.setAttribute("role", "button");
       el.tabIndex = 0;
-      el.setAttribute("aria-label", `Ouvrir le projet ${p.title}`);
+      el.setAttribute("aria-label", `${T("Ouvrir le projet", "Open project")} ${p.title}`);
       // modèle choisi dans data.js (design: 1 à 9), sinon il tourne ; sans image → typographique
       let design = p.design ? p.design - 1 : i % DESIGNS.length;
       if (!p.image) design = 0;
@@ -285,7 +295,7 @@
         el.style.opacity = (0.7 + 0.3 * depth).toFixed(2);
       });
       const p = PROJECTS[hovered];
-      const html = p ? `${p.title}<small>${p.tag} — ${p.year}</small>` : `<small>Survolez un projet, cliquez pour l’ouvrir</small>`;
+      const html = p ? `${p.title}<small>${p.tag} — ${p.year}</small>` : `<small>${T("Survolez un projet, cliquez pour l’ouvrir", "Hover over a project, click to open it")}</small>`;
       if (current.innerHTML !== html) current.innerHTML = html;
       requestAnimationFrame(render);
     }
@@ -375,10 +385,10 @@
       sub.hidden = !p.subtitle;
       const facts = document.getElementById("pm-facts");
       facts.innerHTML =
-        (p.meta ? `<p class="pm-meta-line">${p.meta.map((m) => `<span><b>${m.label} :</b> ${m.value}</span>`).join(`<i aria-hidden="true">·</i>`)}</p>` : "") +
+        (p.meta ? `<p class="pm-meta-line">${p.meta.map((m) => `<span><b>${m.label}${T(" :", ":")}</b> ${m.value}</span>`).join(`<i aria-hidden="true">·</i>`)}</p>` : "") +
         (p.links ? `<p class="pm-links">${p.links.map((l) => `<a href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`).join("")}</p>` : "") +
         (p.tone ? `<p class="pm-tone">${p.tone}</p>` : "") +
-        (p.highlights ? `<div class="pm-highlights"><h3 class="pm-group-title">Temps forts</h3><ol>${p.highlights.map((x) => `<li><h4>${x.title}</h4><p>${x.text}</p></li>`).join("")}</ol></div>` : "") +
+        (p.highlights ? `<div class="pm-highlights"><h3 class="pm-group-title">${T("Temps forts", "Highlights")}</h3><ol>${p.highlights.map((x) => `<li><h4>${x.title}</h4><p>${x.text}</p></li>`).join("")}</ol></div>` : "") +
         (p.results ? `<div class="pm-results">${p.results.map((r) => `<div class="pm-result"><span class="pm-figure">${r.figure}</span><span class="pm-result-text">${r.text}</span></div>`).join("")}</div>` : "");
       facts.hidden = !facts.innerHTML;
       const logo = document.getElementById("pm-logo");
@@ -393,7 +403,7 @@
       v.hidden = !vids.length;
       const groups = [];
       vids.forEach((vd) => {
-        const name = vd.group || "Vidéos";
+        const name = vd.group || T("Vidéos", "Videos");
         let gr = groups.find((x) => x.name === name);
         if (!gr) groups.push((gr = { name, items: [] }));
         gr.items.push(vd);
@@ -428,8 +438,9 @@
       lib.hidden = !items.length;
       lib.innerHTML = "";
       if (items.length) {
-        const famille = (x) => /^Presse/.test(x.format || "") ? "Presse" : (x.image || x.images) ? "Photos & visuels" : "Réseaux sociaux";
-        const FAMILLES = ["Photos & visuels", "Presse", "Réseaux sociaux"];
+        const [VISUELS, PRESSE, RESEAUX] = T(["Photos & visuels", "Presse", "Réseaux sociaux"], ["Photos & visuals", "Press", "Social media"]);
+        const famille = (x) => /^Press/.test(x.format || "") ? PRESSE : (x.image || x.images) ? VISUELS : RESEAUX;
+        const FAMILLES = [VISUELS, PRESSE, RESEAUX];
         const themes = [...new Set(items.map((x) => x.theme))];
         const slug = (t) => "lib-" + t.toLowerCase().normalize("NFD").replace(/[^a-z]+/g, "-");
         const ytId = (u) => (u.match(/embed\/([\w-]+)/) || [])[1];
@@ -440,18 +451,18 @@
           if (x.src) return `<figure class="lib-item is-insta"><div class="lib-embed"><iframe data-src="https://www.instagram.com/p/${x.src}/embed/" title="${x.title}" scrolling="no" allowfullscreen></iframe></div>${cap}</figure>`;
           if (x.embed && /youtube/.test(x.embed)) { const id = ytId(x.embed); return `<figure class="lib-item is-yt"><div class="lib-embed"><iframe data-src="${x.embed}?autoplay=1&mute=1&loop=1&playlist=${id}&playsinline=1&rel=0&modestbranding=1" title="${x.title}" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>${cap}</figure>`; }
           if (x.embed) return `<figure class="lib-item is-li"><div class="lib-embed"><iframe data-src="${x.embed}" title="${x.title}" allowfullscreen></iframe></div>${cap}</figure>`;
-          if (x.url) return `<figure class="lib-item is-img"><a class="lib-open" href="${x.url}" target="_blank" rel="noopener"><img src="${x.cover}" alt="${x.title}" loading="lazy" /><span class="lib-ext">Voir la vidéo ↗</span></a>${cap}</figure>`;
+          if (x.url) return `<figure class="lib-item is-img"><a class="lib-open" href="${x.url}" target="_blank" rel="noopener"><img src="${x.cover}" alt="${x.title}" loading="lazy" /><span class="lib-ext">${T("Voir la vidéo", "Watch the video")} ↗</span></a>${cap}</figure>`;
           return "";
         };
         lib.innerHTML = `
-          <h3 class="pm-group-title">Quelques réalisations</h3>
-          <nav class="lib-jump" aria-label="Compétences">${themes.map((t) => `<a href="#${slug(t)}">${t}<sup>${items.filter((x) => x.theme === t).length}</sup></a>`).join("")}</nav>
+          <h3 class="pm-group-title">${T("Quelques réalisations", "Selected work")}</h3>
+          <nav class="lib-jump" aria-label="${T("Compétences", "Portfolios")}">${themes.map((t) => `<a href="#${slug(t)}">${t}<sup>${items.filter((x) => x.theme === t).length}</sup></a>`).join("")}</nav>
           ${themes.map((t) => `
             <section class="lib-sec" id="${slug(t)}">
               <h4 class="lib-sec-title">${t}</h4>
               ${FAMILLES.map((f) => {
                 const list = items.filter((x) => x.theme === t && famille(x) === f);
-                return list.length ? `<div class="lib-fam"><div class="lib-fam-head"><p class="lib-fam-title">${f} <span>${list.length}</span></p>${list.length > 2 ? `<div class="lib-arrows"><button class="lib-arr" data-dir="-1" aria-label="Précédent">←</button><button class="lib-arr" data-dir="1" aria-label="Suivant">→</button></div>` : ""}</div><div class="lib-row ${f === "Réseaux sociaux" ? "is-social" : "is-visual"}">${list.map(card).join("")}</div></div>` : "";
+                return list.length ? `<div class="lib-fam"><div class="lib-fam-head"><p class="lib-fam-title">${f} <span>${list.length}</span></p>${list.length > 2 ? `<div class="lib-arrows"><button class="lib-arr" data-dir="-1" aria-label="${T("Précédent", "Previous")}">←</button><button class="lib-arr" data-dir="1" aria-label="${T("Suivant", "Next")}">→</button></div>` : ""}</div><div class="lib-row ${f === RESEAUX ? "is-social" : "is-visual"}">${list.map(card).join("")}</div></div>` : "";
               }).join("")}
             </section>`).join("")}`;
         lib.querySelectorAll("button.lib-open").forEach((c) => c.addEventListener("click", () => openViewer(items[+c.dataset.k])));
@@ -488,16 +499,16 @@
       // Galeries : une section par catégorie (p.galleries), sinon « Visuels & publications »
       const sets = p.galleries
         ? p.galleries.map((s) => ({ title: s.title, items: norm(s.images), embeds: s.embeds || [] }))
-        : [{ title: "Visuels & publications", items: imgs.slice(nf) }];
+        : [{ title: T("Visuels & publications", "Visuals & posts"), items: imgs.slice(nf) }];
       const wrap = document.getElementById("pm-galleries");
       wrap.innerHTML = sets.filter((s) => s.items.length).map((s) => `
         <section class="pm-gal-set">
           <h3 class="pm-group-title">${s.title}</h3>
           <div class="pm-gallery">
             <div class="gal-stage">
-              <button class="gal-nav gal-prev" aria-label="Image précédente">←</button>
+              <button class="gal-nav gal-prev" aria-label="${T("Image précédente", "Previous image")}">←</button>
               <div class="gal-view"><img class="gal-main" src="${s.items[0].src}" alt="" /></div>
-              <button class="gal-nav gal-next" aria-label="Image suivante">→</button>
+              <button class="gal-nav gal-next" aria-label="${T("Image suivante", "Next image")}">→</button>
             </div>
             <p class="gal-caption"></p>
             ${s.items.length > 1 ? `<div class="gal-thumbs">${s.items.map((im, k) => `<button class="gal-thumb" data-k="${k}"><img src="${im.src}" alt="" loading="lazy" /></button>`).join("")}</div>` : ""}

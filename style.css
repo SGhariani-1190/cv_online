@@ -2263,3 +2263,14 @@ html, body { max-width: 100%; overflow-x: clip; }
 .page-sign { text-align: center; padding: clamp(30px, 4vw, 56px) var(--gutter) clamp(28px, 3vw, 44px); }
 .page-sign .contact-made { margin-top: 0; }
 .cv-section { padding-bottom: 0; }
+
+/* ---------- Langue : petit sélecteur FR / EN à côté du menu ---------- */
+.header-right { display: flex; align-items: center; gap: 22px; }
+.lang-switch { display: inline-flex; align-items: baseline; gap: .35em; font-size: 13px; font-weight: 600; letter-spacing: .06em; }
+.lang-switch a { color: var(--muted); transition: color .2s; }
+.lang-switch a:hover { color: #cc3333; }
+.lang-switch a.is-on { color: var(--fg); pointer-events: none; }
+.lang-switch i { font-style: normal; font-weight: 400; color: var(--muted); }
+body.menu-open .lang-switch a, body.menu-open .lang-switch i { color: rgba(255,255,255,.55); }
+body.menu-open .lang-switch a.is-on { color: var(--menu-fg); }
+@media (max-width: 760px) { .header-right { gap: 16px; } .lang-switch { font-size: 12px; } }

@@ -5,6 +5,19 @@
 //  (sans image, une carte de couleur est générée automatiquement)
 // ============================================================
 
+// Langue du site : français par défaut, anglais avec ?lang=en (le choix est retenu pour les visites suivantes).
+// Les textes anglais sont dans data.en.js.
+const LANG = (() => {
+  const q = new URLSearchParams(location.search).get("lang");
+  try {
+    if (q === "en" || q === "fr") { localStorage.setItem("lang", q); return q; }
+    return localStorage.getItem("lang") === "en" ? "en" : "fr";
+  } catch (e) { return q === "en" ? "en" : "fr"; }
+})();
+document.documentElement.lang = LANG;
+// petit texte d'interface dans la bonne langue : T("Fermer", "Close")
+const T = (fr, en) => (LANG === "en" ? en : fr);
+
 const SITE = {
   name: "Sonia Ghariani",
   role: "Communication | Content & Digital Strategy | Public Affairs | Brussels",
@@ -312,6 +325,8 @@ images: [
 const ABOUT = {
   headline:
     "Bonjour, je suis Sonia. Parisienne de naissance, Bruxelloise de cœur. Mon métier : sublimer vos messages et clarifier l’essentiel. Je rends le complexe captivant, par la plume et par l’image.",
+  // morceau de phrase souligné en rouge sur le site
+  key: "sublimer vos messages et clarifier l’essentiel",
   paragraphs: [
     "Depuis toujours, je suis fascinée par la façon dont les mots et les images façonnent notre regard. Formée à la communication et à la publicité à Paris, j'ai fait de cette curiosité un métier : trouver la juste façon de dire les choses, pour qu'elles soient comprises, retenues et partagées.",
     "Mon parcours m'a menée des agences aux marques, puis au cœur de l'action publique. J'ai accompagné de jeunes créateurs, des restaurants et des maisons comme Erbario Toscano, participé au lancement de TheFork en Belgique et porté la ligne éditoriale du site de SNCB International.",
