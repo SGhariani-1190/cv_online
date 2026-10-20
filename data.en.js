@@ -222,7 +222,7 @@ if (LANG === "en") (function () {
               title: "Head of Communications",
               period: "Feb. 2024 — Feb. 2026",
               tasks: [
-                "Sole person in charge of all the Office’s communication during the caretaker period.",
+                "Single-handedly ran all of the Office’s communications during the caretaker period.",
                 "Led the Office’s communication and the Minister’s public statements, fully autonomously.",
                 "Managed crisis communication on sensitive issues: the closure of the Audi Brussels plant in Forest, the unemployment reform.",
                 "Communicated on the Office’s major files: the “Digital Brussels” ordinance, service vouchers, Brussels’ first Animal Welfare Code.",
