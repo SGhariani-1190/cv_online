@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sonia Ghariani — Communication, Brussels</title>
+  <title>Sonia Ghariani — Communication, Bruxelles</title>
   <!-- aperçu du site quand on partage le lien (LinkedIn, WhatsApp, Facebook…) -->
   <meta name="description" content="Bruxelloise de cœur, je sublime vos messages et rends le complexe captivant, par la plume et par l’image." />
   <meta property="og:title" content="Sonia Ghariani — Communication, Bruxelles" />
@@ -15,6 +15,46 @@
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="fr_FR" />
   <meta name="twitter:card" content="summary_large_image" />
+  <!-- référencement : adresse officielle de la page, version anglaise, et fiche « personne » lue par Google -->
+  <link rel="canonical" href="https://soniaghariani.com/" />
+  <link rel="alternate" hreflang="fr" href="https://soniaghariani.com/" />
+  <link rel="alternate" hreflang="en" href="https://soniaghariani.com/?lang=en" />
+  <link rel="alternate" hreflang="x-default" href="https://soniaghariani.com/" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://soniaghariani.com/#sonia",
+        "name": "Sonia Ghariani",
+        "givenName": "Sonia",
+        "familyName": "Ghariani",
+        "url": "https://soniaghariani.com/",
+        "image": "https://soniaghariani.com/images/portrait-cv.jpg",
+        "jobTitle": "Communication politique et institutionnelle, relations presse, copywriting",
+        "description": "Bruxelloise de cœur, je sublime vos messages et rends le complexe captivant, par la plume et par l’image.",
+        "email": "mailto:contact@soniaghariani.com",
+        "address": { "@type": "PostalAddress", "addressLocality": "Bruxelles", "addressCountry": "BE" },
+        "knowsLanguage": ["fr", "en", "nl"],
+        "alumniOf": [{ "@type": "CollegeOrUniversity", "name": "Sup de Com" }],
+        "sameAs": [
+          "https://www.linkedin.com/in/sonia-ghariani/",
+          "https://www.instagram.com/soniaghariani/",
+          "https://soundcloud.com/sonia-ghariani-slime"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://soniaghariani.com/#site",
+        "name": "Sonia Ghariani",
+        "url": "https://soniaghariani.com/",
+        "inLanguage": "fr",
+        "author": { "@id": "https://soniaghariani.com/#sonia" }
+      }
+    ]
+  }
+  </script>
   <link rel="icon" href="images/apple-touch-icon.png" sizes="180x180" type="image/png" />
   <link rel="icon" href="images/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
@@ -26,7 +66,7 @@
   <div class="splash" id="splash" aria-hidden="true"></div>
   <div class="proj-overlay" id="proj-overlay" hidden><iframe id="proj-frame" title="Fiche projet"></iframe></div>
   <main class="page home-hero" id="a-propos" data-crumb="Accueil" data-no-footer>
-    <h1 class="about-headline" id="headline"></h1>
+    <h1 class="about-headline" id="headline">Bonjour, je suis Sonia. Parisienne de naissance, Bruxelloise de cœur. Mon métier : sublimer vos messages et clarifier l’essentiel. Je rends le complexe captivant, par la plume et par l’image.</h1>
 
     <!-- Diptyque : à gauche la silhouette est remplie d'écriture, à droite la silhouette découpée est posée sur l'écriture -->
     <div class="diptych" aria-label="Portrait de Sonia Ghariani">
@@ -76,6 +116,7 @@
     hl.innerHTML = hl.innerHTML.replace(ABOUT.key, `<span class="hl-key">${ABOUT.key}</span>`);
     // textes fixes de la page dans la bonne langue
     if (LANG === "en") {
+      document.title = "Sonia Ghariani — Communication, Brussels";
       document.getElementById("a-propos").dataset.crumb = "Home";
       document.querySelector(".diptych").setAttribute("aria-label", "Portrait of Sonia Ghariani");
       document.querySelector(".dip-a .dip-photo").alt = "Portrait of Sonia Ghariani in London";
